@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Example 1</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static '/css/invoice.css' %}" media="all" />
+
+
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+</head>
+
+
+<body>
+  <header class="clearfix">
+    <div id="logo">
+      {% load static %}
+      <img src="{% static '/css/logo.png' %}">
+    </div>
+    <h1>INVOICE</h1>
+    <div id="company" class="clearfix">
+      <div>Company Name</div>
+      <div>455 Foggy Heights,<br /> AZ 85004, US</div>
+      <div>(602) 519-0450</div>
+      <div><a href="mailto:company@example.com">company@example.com</a></div>
+    </div>
+    <div id="project">
+      <!--div><span>PROJECT</span> Website development</div-->
+      <div><span>CLIENT</span> {{customerName}}</div>
+      <div><span>ADDRESS</span> {{customerAddress}}</div>
+      <div><span>CONTACT</span>{{customerContact}}</div>
+      <div id="orderdate"><span>DATE</span>{{date}}</div>
+      <!--div><span>DUE DATE</span> September 17, 2015</div-->
+    </div>
+  </header>
+  <main>
+    <table>
+      <thead>
+        <tr>
+          <th class="service">Item no.</th>
+          <th class="desc">DESCRIPTION</th>
+          <th>PRICE</th>
+          <th>QTY</th>
+          <th>TOTAL</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for i  in product %}
+        <tr>
+          <td class="service"> {{ forloop.counter }}</td>
+          <td class="desc">{{i.product}}</td>
+          <td class="price">{{i.price}}</td>
+          <td class="qty">{{i.qty}}</td>
+          <td class="total">{{i.total}}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+          <td colspan="4">SUBTOTAL</td>
+          <td class="total">{{  sub_total }}</td>
+        </tr>
+        <tr>
+          <td colspan="4">TAX {{  tax }}%</td>
+          <td class="total">{{  tax_amount }}</td>
+        </tr>
+        <tr>
+          <td colspan="4" class="grand total">GRAND TOTAL</td>
+          <td class="grand total">{{  total_amount }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div id="notices">
+      <div>NOTICE:</div>
+      <div class="notice">A finance charge of 1.5% will be made on unpaid balances after 30 days.</div>
+    </div>
+  </main>
+  <footer>
+    Invoice was created on a computer and is valid without the signature and seal.
+  </footer>
+  <div class="row clearfix">
+    <div class="col-md-12">
+      <a href="http://example.com/files/myfile.pdf" target="_blank">Download</a>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var text = $("#orderdate").contents().filter(function () {
+        return this.nodeType == Node.TEXT_NODE;
+      }).text();
+      var readableDate = new Date(text).toDateString()
+      $('#orderdate').contents().last()[0].textContent = readableDate;
+
+    }());
+  </script>
+</body>
+
+</html>

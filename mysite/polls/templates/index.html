@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    {% load static %}
+    <link rel="stylesheet" href="{% static '/css/index.css' %}" media="all" />
+
+
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <meta charset="utf-8">
+    <title>JS Bin</title>
+</head>
+
+<body>
+
+
+    <header>
+        <h1>Invoice</h1>
+    </header>
+
+    <div>
+        <form action="generateinvoice" method="POST">
+            {% csrf_token %}
+            <div class="float">
+                <div>
+                    <p><input type="text" name='customerName' placeholder='Customer Name' id="customerName" /></span>
+                    </p>
+                    <p><input type="tel" name='customerContact' placeholder='Phone Number' id="customerContact" /></p>
+                    <p><textarea id="customerAddress" name="customerAddress" placeholder='Customer Address'
+                            style="height:100px"></textarea></p>
+                </div>
+            </div>
+            <table class="meta">
+                <tr>
+                    <th><span contenteditable>Invoice #</span></th>
+                    <td><span contenteditable>{{ oderid}}</span></td>
+                </tr>
+                <tr>
+                    <th><span contenteditable>Date</span></th>
+                    <td><span contenteditable><input type="text" name='date' placeholder='Date'
+                                id="invoicedate" /></span></td>
+                </tr>
+            </table>
+            <table class="table table-bordered table-hover" id="tab_logic">
+                <thead>
+                    <tr>
+                        <th class="text-center"> # </th>
+                        <th class="text-center"> Product </th>
+                        <th class="text-center"> Qty </th>
+                        <th class="text-center"> Price </th>
+                        <th class="text-center"> Total </th>
+                    </tr>
+                </thead>
+                <tbody id="tab_logic_body">
+                    <tr id='addr0'>
+                        <td>1</td>
+                        <td><input type="text" name='product' placeholder='Enter Product Name'
+                                class="form-control product" id="product1" /></td>
+                        <td><input type="number" name='quantity' placeholder='Enter Qty' class="form-control quantity"
+                                step="0" min="0" id="quantity1" /></td>
+                        <td><input type="number" step="0.01" name='price' placeholder='Enter Unit Price'
+                                class="form-control price" step="0.00" min="0" id="price1" /></td>
+                        <td><input type="number" name='total' placeholder='0.00' class="form-control total" id="total1"
+                                readonly />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="row clearfix">
+                <div class="col-md-12">
+                    <button type="button" onclick="addrow()" id="add_row" class="pull-left btn btn-default">Add
+                        Row</button>
+                    <button type="button" onclick="deleterow()" id='delete_row'
+                        class="pull-right btn btn-default">Delete Row</button>
+                </div>
+            </div>
+            <div class="row clearfix" style="margin-top:20px">
+                <div class="pull-right col-md-4">
+                    <table class="table table-bordered table-hover" id="tab_logic_total">
+                        <tbody>
+                            <tr>
+                                <th class="text-center">Sub Total</th>
+                                <td class="text-center"><input type="number" name='sub_total' placeholder='0.00'
+                                        class="form-control" id="sub_total" readonly /></td>
+                            </tr>
+                            <tr>
+                                <th class="text-center">Tax</th>
+                                <td class="text-center">
+                                    <div class="input-group mb-2 mb-sm-0">
+                                        <input type="number" class="form-control" id="tax" placeholder="0" value="18"
+                                            name="tax">
+                                        <div class="input-group-addon">%</div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-center">Tax Amount</th>
+                                <td class="text-center"><input type="number" name='tax_amount' id="tax_amount"
+                                        placeholder='0.00' class="form-control" readonly /></td>
+                            </tr>
+                            <tr>
+                                <th class="text-center">Grand Total</th>
+                                <td class="text-center"><input type="number" name='total_amount' id="total_amount"
+                                        placeholder='0.00' class="form-control" readonly /></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row clearfix">
+                <div class="col-md-12">
+                    <input type="submit" class="pull-right btn btn-default" id="submit" value="Submit" disabled />
+                </div>
+            </div>
+        </form>
+    </div>
+    <script>
+        function addrow() {
+            var tbody = document.getElementById('tab_logic_body');
+            var row = tbody.insertRow()
+            var input = document.createElement('input')
+            input.setAttribute("type", "text")
+            var child = tbody.children.length
+            for (var i = 0; i < 5; i++) {
+                var cell = row.insertCell();
+                if (i == 0) {
+                    cell.innerHTML = child;
+                }
+                else {
+                    var input = document.createElement('input');
+                    cell.appendChild(input);
+                    switch (i) {
+                        case 1:
+                            var name = 'product'
+                            var type = "text";
+                            var placeholder = "Enter Product Name";
+                            break;
+                        case 2:
+                            var name = 'quantity'
+                            var type = "number";
+                            var placeholder = "Enter Qty";
+                            break;
+                        case 3:
+                            var name = 'price'
+                            var type = "number";
+                            var placeholder = "Enter Unit Price";
+                            break;
+                        case 4:
+                            var name = 'total'
+                            var type = "number";
+                            var placeholder = "0.00";
+                            break;
+                    }
+                    input.setAttribute("type", type)
+                    input.setAttribute("id", name + child)
+                    input.setAttribute("name", name)
+                    input.setAttribute("placeholder", placeholder)
+                    input.setAttribute("class", "form-control " + name)
+                    if (i == 4) {
+                        input.readOnly = true;
+                    }
+                }
+
+            }
+            $(document).ready(function (e) {
+                $("input[name='quantity']").change(function () {
+                    var optionSelected = $("option:selected", this);
+                    calc(this);
+                });
+            });
+            $(document).ready(function (e) {
+                $("input[name='price']").change(function () {
+                    var optionSelected = $("option:selected", this);
+                    calc(this);
+                });
+            });
+            autocompleteFunction();
+        }
+
+        function deleterow() {
+            var tbody = document.getElementById('tab_logic_body');
+            if (tbody.children.length == 1)
+                alert('Atleast 1 row is Required')
+            else {
+                tbody.deleteRow(tbody.rows.length - 1);
+            }
+            calcTotal()
+        };
+
+        $(document).ready(function (e) {
+            $("input[name='quantity']").change(function () {
+                var optionSelected = $("option:selected", this);
+                calc(this);
+            });
+        });
+        $(document).ready(function (e) {
+            $("input[name='price']").change(function () {
+                var optionSelected = $("option:selected", this);
+                calc(this);
+            });
+        });
+
+        function calc(input) {
+            if (input.id.includes("price")) {
+                var id = input.id.replace('price', 'quantity')
+                var idt = input.id.replace('price', 'total')
+            }
+            else {
+                var id = input.id.replace('quantity', 'price')
+                var idt = input.id.replace('quantity', 'total')
+            }
+            let s = document.getElementById(id)
+            if (s.value != '') {
+                total = s.value * input.value
+                document.getElementById(idt).value = total.toFixed(2)
+                calcTotal();
+            }
+        };
+
+        function calcTotal() {
+            var total = document.getElementsByName('total')
+            subtotal = 0
+            for (var i = 0; i < total.length; i++) {
+                if (total[i].value != '') {
+                    console.log(total[i].value)
+                    subtotal += parseFloat(total[i].value)
+                }
+            }
+            document.getElementById('sub_total').value = subtotal
+            var tax = document.getElementById('tax')
+            var taxAmount = (tax.value * subtotal) / 100
+            var grandTotal = subtotal + taxAmount
+            document.getElementById('tax_amount').value = taxAmount.toFixed(2)
+            document.getElementById('total_amount').value = Math.floor(grandTotal).toFixed(2)
+            console.log(Math.floor(grandTotal).toFixed(2))
+            enableSubmit();
+        }
+        function enableSubmit() {
+            var total = document.getElementById('total_amount').value
+
+            var validPrice = validValues('price')
+            var validQuantity = validValues('quantity')
+            console.log(validQuantity)
+            console.log(validPrice)
+            if (total != 0 && validPrice && validQuantity) {
+                document.getElementById('submit').disabled = false;
+            }
+        };
+
+        function validValues(input) {
+            var nodeList = document.getElementsByName(input)
+            let validValues = false
+            for (var i = 0; i < nodeList.length; i++) {
+                if (nodeList[i].value != 0)
+                    validValues = true;
+                else
+                    validValues = false;
+            }
+            return validValues
+        };
+        $(document).ready(function (e) {
+            $("#tax").change(function () {
+                var optionSelected = $("option:selected", this);
+                calcTotal();
+            });
+        });
+        autocompleteFunction();
+        function autocompleteFunction() {
+            $(function () {
+                $(".product").autocomplete({
+                    source: "{% url 'autocomplete' %}",
+                    select: function (event, ui) {
+                        let id = this.id.replace('product', 'price')
+                        document.getElementById(id).value = ui.item.rate.toFixed(2)
+                        calc(document.getElementById(id))
+                    }
+                });
+            });
+        }
+        date();
+        function date() {
+            var currentdate = new Date();
+            var data = document.getElementById('invoicedate')
+            data.value = JSON.stringify(currentdate).slice(1, 11)
+        }
+    </script>
+</body>
+
+</html>
+
+
+<html>
